@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./bootstrap-3.4.1-dist/css/bootstrap.css">
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.1/jquery.js"></script>
+    <script src="./bootstrap-3.4.1-dist/js/bootstrap.js"></script>
+    <title>Document</title>
+    <style>
+        h1 {
+            text-align: center;
+        }
+    </style>
+    <script>
+        // window.onload = function(){}
+        // 添加员工信息
+        $(function() {
+            // 添加
+            $(".add-btn").click(function() {
+                $('#addModal').modal({
+                    backdrop: 'static'
+                });
+            });
+            // 保存  keep-add   val()获取元素的值
+            $(".keep-add").click(function() {
+                var id = parseInt(Math.random() * 9000) + 1000;
+                // console.log(id);
+                // var username = $("#userName").val();
+                var username = $("#addModal form input[name = addUserName]").val();
+                // console.log(username);
+                var gender = $("#addModal form input[name = gender]:checked").val() == "M" ? "男" : "女";
+                // console.log(gender);
+                var email = $("#addModal form input[name = addEmail]").val();
+                // console.log(email);
+                var dept = $("#addModal form select option:selected").val();
+                // console.log(dept);
+                // class也能出中文，且不需要switch转换
+                switch (dept) {
+                    case "yf":
+                        dept = "研发部";
+                        break;
+                    case "rs":
+                        dept = "人事部";
+                        break;
+                    case "cw":
+                        dept = "财务部";
+                        break;
+                    case "sx":
+                        dept = "销售部";
+                        break;
+                    case "hq":
+                        dept = "后勤部";
+                        break;
+                    case "dy":
+                        dept = "调研部";
+                        break;
+                    case "sc":
+                        dept = "生产部";
+                        break;
+                    case "lw":
+                        dept = "劳务部";
+                        break;
+                }
+
+                var ckTd = $('<td><input type="checkbox" class="checkitem"></td>');
+                var idTd = $('<td class="user-id"></td>').append(id);
+                var usernameTd = $('<td class="user-name"></td>').append(username);
+                var genderTd = $('<td class="user-sex"></td>').append(gender);
+                var emailTd = $('<td class="user-email"></td>').append(email);
+                var deptTd = $('<td class="user-dept"></td>').append(dept);
+                var btnTd = $(`<td>
+                                 <button class="btn btn-primary btn-sm modify-btn">
+                                     <span class="glyphicon glyphicon-pencil"></span>
+                                 </button>
+                                 <button class="btn btn-danger btn-sm  del-btn">
+                                     <span class="glyphicon glyphicon-trash"></span>
+                                 </button>
+                             </td>`);
+                //  链式操作
+                var tr = $("<tr></tr>")
+                    .append(ckTd)
+                    .append(idTd)
+                    .append(usernameTd)
+                    .append(genderTd)
+                    .append(emailTd)
+                    .append(deptTd)
+                    .append(btnTd)
+                    .appendTo("tbody");
+                $("#addModal").modal("hide");
+
+
+                // 另一种写法，对但不完全对，逻辑不太清晰
+                //     var username =  $("#userName").val()
+                //     var str = "<tr>" +
+                //         "<td>" + $(".information tr td:first").length + "</td>" +
+                //         "<td>" + $("#userName").val() + "</td>" +
+                //         "<td>" + $("input:radio:checked").val() + "</td>" +
+                //         "<td>" + $("#inputEmail").val() + "</td>" +
+                //         "<td>" + $("select option:selected").val() + "</td>" +
+                //         `<td>
+                //             <button class="btn btn-primary btn-sm">
+                //                  <span class="glyphicon glyphicon-pencil"></span>
+                //             </button>
+                //             <button class="btn btn-danger btn-sm  del-btn">
+                //                 <span class="glyphicon glyphicon-trash"></span>
+                //             </button>
+                //         </td>` + "</tr>";
+
+                //     // $(".information").add(str);
+                //     $(".information").append(str);
+            })
+        });
+        // closest("tr") == parent().parent()[父级的父级]
+        // $(document) == $(".class")
+        // 删除
+        $(function() {
+            // 行中删除
+            $('.information').on('click', '.del-btn', function() {
+                    $(this).closest("tr").remove();
+                })
+                // 页面删除（暂时不管）
+                //判断信息前面复选框的状态 
+            $(".checkall").click(function() {
+                    // 当checkall被选中时，返回选中状态
+                    // $(".checkall").prop("checked");
+                    // 当checkitem被选中时，返回checkall的状态  在此处与$(".checkitem").prop("checked",true)等价
+                    $(".checkitem").prop("checked", $(this).prop("checked"));
+                })
+                // 判断全选复选框的状态
+            $(document).on('click', ".checkitem", function() {
+                // 是否全选，页面上所有checkitem的数量与被选中的数量是否一致
+                let falg = $(".checkitem").length == $(".checkitem:checked").length;
+                // falg==true返回选中，falg==false未选中
+                $(".checkall").prop("checked", falg);
+            })
+            $(document).on('click', '.Del-Btn', function() {
+                $(".checkitem:checked").parent().parent().remove();
+            })
+        });
+        // 修改
+        $(function() {
+            // tr全局作用
+            var tr;
+            // $('.information').on('click','.modify-btn',function(){
+            $(document).on('click', '.modify-btn', function() {
+                // var tr;  放这好像也行
+                tr = $(this).parent().parent();
+                // 要先回显数据，再打开模态框
+                // 回显数据     向模态框中传值
+                let tds = tr.children();
+                // ID
+                let id = tds.eq(1).html();
+                id = $("#modifyModal form input[name=modifyId]").val(id);
+                // $(id).html("sdhfa");
+                // $("#modId").removeData(id).append($("#modifyModal form input[name=modifyId]").val());
+                // console.log(id);
+                // 姓名
+                let name = tds.eq(2).html();
+                name = $("#modifyModal form input[name=modifyName]").val(name);
+                // 性别
+                let gender = tds.eq(3).html() == "男" ? 'M' : 'F';
+                // 用数组获取单选框和复选框的值
+                // 获取性别的值，直接接收就行，不需要判断
+                $("#modifyModal form input[name='modifygender']").val([gender]);
+
+                // 邮箱
+                let email = tds.eq(4).html();
+                email = $("#modifyModal form input[name=modifyEmail]").val(email);
+                // 部门
+                let dept = tds.eq(5).html();
+                switch (dept) {
+                    case "研发部":
+                        dept = "yf";
+                        break;
+                    case "人事部":
+                        dept = "rs";
+                        break;
+                    case "财务部":
+                        dept = "cw";
+                        break;
+                    case "销售部":
+                        dept = "sx";
+                        break;
+                    case "后勤部":
+                        dept = "hq";
+                        break;
+                    case "调研部":
+                        dept = "dy";
+                        break;
+                    case "生产部":
+                        dept = "sc";
+                        break;
+                    case "劳务部":
+                        dept = "lw";
+                        break;
+                }
+                // console.log(dept);
+                dept = $("#modifyModal form select").val([dept]);
+                // var idTd = $('<td></td>').append(id);
+                // var mm = $(id).replaceWith(idid);
+                // console.log(mm);
+
+                // 打开模态框
+                $("#modifyModal").modal({
+                    backdrop: 'static'
+                });
+
+                // 修改保存
+                $(".keep-modify").click(function() {
+                    let tds = tr.children();
+                    // 姓名
+                    let name = $("#modifyModal form input[name=modifyName]").val();
+                    $(tds).eq(2).html(name);
+                    // console.log(name);
+                    // console.log($($(" .user-name").parent()).index(this));
+                    // var username = $("#modifyModal form input[name=modifyName]").val();
+                    // 性别
+                    var gender = $("#modifyModal form input[name = modifygender]:checked").val() == "M" ? "男" : "女";
+                    $(tds).eq(3).html(gender);
+                    // 邮箱
+                    var email = $("#modifyModal form input[name = modifyEmail]").val();
+                    $(tds).eq(4).html(email);
+                    // 部门
+                    var dept = $("#modifyModal form select option:selected").val();
+                    switch (dept) {
+                        case "yf":
+                            dept = "研发部";
+                            break;
+                        case "rs":
+                            dept = "人事部";
+                            break;
+                        case "cw":
+                            dept = "财务部";
+                            break;
+                        case "sx":
+                            dept = "销售部";
+                            break;
+                        case "hq":
+                            dept = "后勤部";
+                            break;
+                        case "dy":
+                            dept = "调研部";
+                            break;
+                        case "sc":
+                            dept = "生产部";
+                            break;
+                        case "lw":
+                            dept = "劳务部";
+                            break;
+                    }
+                    $(tds).eq(5).html(dept);
+                    $("#modifyModal").modal("hide");
+                });
+
+            })
+        })
+    </script>
+</head>
+
+<body>
+    <!-- Modal 新增模态框 -->
+    <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">员工新增</h4>
+                </div>
+                <!-- 内容 -->
+                <div class="modal-body">
+                    <form class="form-horizontal">
+                        <!-- 姓名 -->
+                        <div class="form-group">
+                            <label for="userName" class="col-sm-2 control-label">姓名：</label>
+                            <div class="col-sm-10">
+                                <input name="addUserName" type="text" class="form-control" id="userName" placeholder="请输入姓名">
+                            </div>
+                        </div>
+                        <!-- 性别 -->
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">姓别：</label>
+                            <div class="col-sm-10">
+                                <label class="radio-inline">
+                                    <input type="radio" name="gender" value="M"> 男
+                                  </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="gender" value="F"> 女
+                                  </label>
+                            </div>
+                        </div>
+                        <!-- 邮箱 -->
+                        <div class="form-group">
+                            <label for="inputEmail" class="col-sm-2 control-label">邮箱：</label>
+                            <div class="col-sm-10">
+                                <input name="addEmail" type="email" class="form-control" id="inputEmail" placeholder="请输入邮箱">
+                            </div>
+                        </div>
+                        <!-- 部门 -->
+                        <div class="form-group">
+                            <label for="adddept" class="col-sm-2 control-label">部门：</label>
+                            <div class="col-sm-10">
+                                <select class="form-control">
+                                    <option value="yf">研发部</option>
+                                    <option value="rs">人事部</option>
+                                    <option value="cw">财务部</option>
+                                    <option value="sx">销售部</option>
+                                    <option value="hq">后勤部</option>
+                                    <option value="dy">调研部</option>
+                                    <option value="sc">生产部</option>
+                                    <option value="lw">劳务部</option>
+                                  </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary keep-add">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 修改模态框 -->
+    <div class="modal fade" id="modifyModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">员工信息修改</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal">
+                        <!-- ID -->
+                        <div class="form-group">
+                            <label for="modId" class="col-sm-2 control-label">ID：</label>
+                            <div class="col-sm-10">
+                                <input name="modifyId" type="text" class="form-control" id="modId" readonly>
+                            </div>
+                        </div>
+                        <!-- 姓名 -->
+                        <div class="form-group">
+                            <label for="modName" class="col-sm-2 control-label">姓名：</label>
+                            <div class="col-sm-10">
+                                <input name="modifyName" type="text" class="form-control" id="modName">
+                            </div>
+                        </div>
+                        <!-- 性别 -->
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">姓别：</label>
+                            <div class="col-sm-10">
+                                <label class="radio-inline">
+                                <input class="nan" type="radio" name="modifygender" value="M"> 男
+                            </label>
+                                <label class="radio-inline">
+                                <input class="nv" type="radio" name="modifygender" value="F"> 女
+                            </label>
+                            </div>
+                        </div>
+                        <!-- 邮箱 -->
+                        <div class="form-group">
+                            <label for="modEmail" class="col-sm-2 control-label">邮箱：</label>
+                            <div class="col-sm-10">
+                                <input name="modifyEmail" type="email" class="form-control" id="modEmail">
+                            </div>
+                        </div>
+                        <!-- 部门 -->
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">部门：</label>
+                            <div class="col-sm-10">
+                                <select class="form-control" name="dept">
+                                <option value="yf">研发部</option>
+                                <option value="rs">人事部</option>
+                                <option value="cw">财务部</option>
+                                <option value="sx">销售部</option>
+                                <option value="hq">后勤部</option>
+                                <option value="dy">调研部</option>
+                                <option value="sc">生产部</option>
+                                <option value="lw">劳务部</option>
+                            </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default " data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary keep-modify">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 题目 -->
+        <div class="row">
+            <div class="col-md-12">
+                <h1>软工三班CRM系统</h1>
+            </div>
+        </div>
+        <!-- 增删按钮 -->
+        <div class="row">
+            <div class="col-md-4 col-md-offset-8">
+                <button type="button" class="btn btn-primary add-btn">新增</button>
+                <button type="button" class="btn btn-danger Del-Btn">删除</button>
+            </div>
+        </div>
+        <!-- 主体 -->
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table ">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" class="checkall"></th>
+                            <th>ID</th>
+                            <th>姓名</th>
+                            <th>性别</th>
+                            <th>邮箱</th>
+                            <th>部门</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="information">
+                        <tr>
+                            <td><input type="checkbox"></td>
+                            <td>1001</td>
+                            <td class="user-name">卡莎</td>
+                            <td class="user-sex">女</td>
+                            <td class="user-email">1001@qq.com</td>
+                            <td class="user-dept">人事部</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm  modify-btn">
+                                    <span class="glyphicon glyphicon-pencil"></span>
+                                </button>
+                                <button class="btn btn-danger btn-sm  del-btn">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" class="checkitem"></td>
+                            <td class="user-id">1002</td>
+                            <td class="user-name">埃弗顿</td>
+                            <td class="user-sex">男</td>
+                            <td class="user-email">1002@qq.com</td>
+                            <td class="user-dept">研发部</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm  modify-btn">
+                                    <span class="glyphicon glyphicon-pencil"></span>
+                                </button>
+                                <button class="btn btn-danger btn-sm  del-btn">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" class="checkitem"></td>
+                            <td class="user-id">1003</td>
+                            <td class="user-name">艾萨拉</td>
+                            <td class="user-sex">女</td>
+                            <td class="user-email">1003@qq.com</td>
+                            <td class="user-dept">财务部</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm  modify-btn">
+                                    <span class="glyphicon glyphicon-pencil"></span>
+                                </button>
+                                <button class="btn btn-danger btn-sm  del-btn">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" class="checkitem"></td>
+                            <td class="user-id">1004</td>
+                            <td class="user-name">艾芙琳</td>
+                            <td class="user-sex">女</td>
+                            <td class="user-email">1004@qq.com</td>
+                            <td class="user-dept">销售部</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm  modify-btn">
+                                    <span class="glyphicon glyphicon-pencil"></span>
+                                </button>
+                                <button class="btn btn-danger btn-sm  del-btn">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" class="checkitem"></td>
+                            <td class="user-id">1005</td>
+                            <td class="user-name">阿金斯</td>
+                            <td class="user-sex">男</td>
+                            <td class="user-email">1005@qq.com</td>
+                            <td class="user-dept">调研部</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm  modify-btn">
+                                    <span class="glyphicon glyphicon-pencil"></span>
+                                </button>
+                                <button class="btn btn-danger btn-sm  del-btn">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" class="checkitem"></td>
+                            <td class="user-id">1006</td>
+                            <td class="user-name">孙金龙</td>
+                            <td class="user-sex">男</td>
+                            <td class="user-email">1006@qq.com</td>
+                            <td class="user-dept">后勤部</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm  modify-btn">
+                                    <span class="glyphicon glyphicon-pencil"></span>
+                                </button>
+                                <button class="btn btn-danger btn-sm  del-btn">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" class="checkitem"></td>
+                            <td class="user-id">1007</td>
+                            <td class="user-name">弗雷德</td>
+                            <td class="user-sex">男</td>
+                            <td class="user-email">1007@qq.com</td>
+                            <td class="user-dept">生产部</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm  modify-btn">
+                                    <span class="glyphicon glyphicon-pencil"></span>
+                                </button>
+                                <button class="btn btn-danger btn-sm  del-btn">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" class="checkitem"></td>
+                            <td class="user-id">1008</td>
+                            <td class="user-name">金飞达</td>
+                            <td class="user-sex">男</td>
+                            <td class="user-email">1008@qq.com</td>
+                            <td class="user-dept">劳务部</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm  modify-btn">
+                                    <span class="glyphicon glyphicon-pencil"></span>
+                                </button>
+                                <button class="btn btn-danger btn-sm  del-btn">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- 分页导航 -->
+        <div class="row">
+            <div class="col-md-6">
+                当前第一页，总共1000页，共8000条记录
+            </div>
+            <div class="col-md-6">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        <li><a href="#">首页</a></li>
+                        <li class="disabled">
+                            <a href="#" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="active"><a href="#">1</a></li>
+                        <li><a href="#">2</a></li>
+                        <li><a href="#">3</a></li>
+                        <li><a href="#">4</a></li>
+                        <li><a href="#">5</a></li>
+                        <li>
+                            <a href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        <li><a href="#">尾页</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
